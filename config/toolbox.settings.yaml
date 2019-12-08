@@ -1,3 +1,9 @@
+config:
+  libraries:
+    params:
+      tool_dirs:
+      - toolbox/.toolbox/deps/toolbox-git
+
 tools:
   git/backmerge:
     from:
