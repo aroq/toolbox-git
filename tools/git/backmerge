@@ -1,0 +1,30 @@
+#!/usr/bin/env variant
+# vi: ft=yaml
+
+bindParamsFromEnv: true
+
+parameters:
+- name: REPO
+  type: string
+- name: SOURCE
+  type: string
+- name: TARGET
+  type: string
+- name: PROJECT_DIR
+  type: string
+
+tasks:
+  core:
+    import: toolbox/.toolbox/deps/toolbox/variant-lib/utils.yaml
+  utils:
+    tasks:
+      git:
+        import: toolbox/.toolbox/deps/toolbox/variant-lib/utils.git.yaml
+
+steps:
+- task: utils.git.backmerge
+  arguments:
+    repo: "{{ .REPO }}"
+    source: "{{ .SOURCE }}"
+    target: "{{ .TARGET }}"
+    project_dir: "{{ .PROJECT_DIR }}"

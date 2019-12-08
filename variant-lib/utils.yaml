@@ -1,0 +1,113 @@
+parameters:
+- name: repo
+  type: string
+  default: ""
+- name: branch
+  type: string
+  default: ""
+- name: GIT_SSH_COMMAND
+  default: "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+
+tasks:
+  config:
+    tasks:
+      identity:
+        parameters:
+        - name: name
+          type: string
+          default: "Zebra Project"
+        - name: email
+          type: string
+          default: "zebraproject@adyax.com"
+        steps:
+        - task: core.exec
+          arguments:
+            title: "Git :: config"
+            cmd: |
+              git config --list | grep user\.name  || git config --global user.name "{{.name}}"
+              git config --list | grep user\.email || git config --global user.email "{{.email}}"
+  init:
+    steps:
+    - task: core.exec
+      arguments:
+        title: "Git :: init"
+        cmd: |
+          git init .
+          git remote rm origin || true
+          git remote add -t {{.branch}} -f origin  {{.repo}}
+  pull:
+    steps:
+    - task: core.exec
+      arguments:
+        title: "Git :: pull"
+        cmd: |
+          git checkout {{.branch}}
+          git reset --hard origin/{{.branch}}
+          git pull origin {{.branch}}
+  current_repo:
+    script: git config --get remote.origin.url
+
+  backmerge:
+    parameters:
+    - name: repo
+      default: ""
+    - name: source
+      type: string
+    - name: target
+      type: string
+    - name: working_dir
+      default: ".variant/tools_git_backmerge"
+    - name: project_dir
+      default: "source"
+    steps:
+    - task: utils.git.config.identity
+    - task: core.exec
+      arguments:
+        title: "Git :: backmerge :: {{.source}} -> {{.target}}"
+        cmd: |
+          rm -fR {{ .working_dir }}/{{ .project_dir }}
+          mkdir -p {{ .working_dir }}/{{ .project_dir }}
+          cd {{ .working_dir }}/{{ .project_dir }}
+          git init .
+          git remote add -f origin {{ .repo }}
+          git fetch origin {{.source}}
+          git checkout {{.source}}
+          git pull origin {{.source}}
+          git fetch origin {{.target}}
+          git checkout {{.target}}
+          git pull origin {{.target}}
+          git merge {{.source}} --ff
+          git push origin {{.target}}
+          rm -fR {{ .working_dir }}/{{ .project_dir }}
+  sync:
+    autoenv: true
+    parameters:
+    - name: utils.git.current_repo
+      default: ""
+    - name: source_branch
+      default: "master"
+    - name: target_repo
+      default: ""
+    - name: target_branch
+      default: "master"
+    - name: working_dir
+      default: ".variant/tools_git_sync"
+    - name: project_dir
+      default: "source"
+    steps:
+    - task: core.exec
+      arguments:
+        title: "Git :: sync :: to external repo"
+        cmd: |
+          rm -fR {{ .working_dir }}
+          mkdir -p {{ .working_dir }}
+          cd {{ .working_dir }}
+          git clone {{ .tools.git.current_repo }} {{ .project_dir }}
+          cd {{ .project_dir }}
+          git remote add target {{ .target_repo }}
+          git checkout {{ .source_branch }}
+          git pull origin {{ .source_branch }}
+          git push -f target {{.target_branch }}
+          cd ../..
+          rm -fR {{ .working_dir }}
+
