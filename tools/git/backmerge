@@ -19,7 +19,7 @@ tasks:
   utils:
     tasks:
       git:
-        import: toolbox/.toolbox/deps/toolbox/variant-lib/utils.git.yaml
+        import: toolbox/.toolbox/deps/toolbox-git/variant-lib/utils.yaml
 
 steps:
 - task: utils.git.backmerge
