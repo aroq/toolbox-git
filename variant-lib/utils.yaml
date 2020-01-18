@@ -15,10 +15,10 @@ tasks:
         parameters:
         - name: name
           type: string
-          default: "Zebra Project"
+          default: "Toolbox"
         - name: email
           type: string
-          default: "zebraproject@adyax.com"
+          default: "toolbox@toolbox.com"
         steps:
         - task: core.exec
           arguments:
@@ -155,3 +155,4 @@ tasks:
           git push -f target {{.target_branch }}
           )
           rm -fR {{ .working_dir }}
+
