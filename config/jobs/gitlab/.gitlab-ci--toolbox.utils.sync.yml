@@ -1,0 +1,9 @@
+.sync:
+  stage: sync
+  allow_failure: true
+  variables:
+    # GIT_SSH_COMMAND: "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+    DOCKER_RUN_TTY: -i
+    # DOCKER_RUN_MOUNT_VOLUME: -v ~/.ssh:/root/.ssh
+  script:
+    - toolbox/bin/git/sync target

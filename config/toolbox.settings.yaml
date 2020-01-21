@@ -10,3 +10,10 @@ tools:
     - config.libraries
     image: aroq/toolbox:0.1.11
     cmd: git/backmerge
+
+  git/sync:
+    from:
+    - config.libraries
+    image: aroq/toolbox-cicd-build:0.1.11
+    cmd: git/sync
+

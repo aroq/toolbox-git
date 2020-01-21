@@ -1,0 +1,53 @@
+#!/usr/bin/env variant
+# vi: ft=yaml
+
+bindParamsFromEnv: true
+autoenv: true
+
+parameters:
+- name: TOOLBOX_GPG_SECRET_PASSPHRASE
+  type: string
+- name: CI_COMMIT_REF_NAME
+  type: string
+- name: repo
+- name: target_repo
+- name: working_dir
+  default: ".docroot/tools_git_sync"
+- name: project_dir
+  default: "source"
+
+tasks:
+  core:
+    import: toolbox/.toolbox/deps/toolbox/variant-lib/utils.yaml
+  git:
+    import: toolbox/.toolbox/deps/toolbox-git/variant-lib/utils.yaml
+
+  target:
+    parameters:
+    - name: git.config.branch
+    steps:
+    - task: core.gpg.symmetric.decrypt
+      arguments:
+        input: toolbox/.secrets/id_rsa.allopneus.cicd.gpg
+        output: /root/.ssh/id_rsa
+    - task: core.exec
+      arguments :
+        cmd: |
+          chmod 400 /root/.ssh/id_rsa
+    - task: core.exec
+      arguments:
+        title: "Git :: sync :: to external repo"
+        cmd: |
+          rm -fR {{ .working_dir }}
+          mkdir -p {{ .working_dir }}
+          (
+          cd {{ .working_dir }}
+          git clone {{ .repo }} {{ .project_dir }}
+          cd {{ .project_dir }}
+          git remote add target {{ .target_repo }}
+          git checkout {{ .git.config.branch }}
+          git pull origin {{ .git.config.branch }}
+          git push -f target {{ .git.config.branch }}
+          )
+          rm -fR {{ .working_dir }}
+

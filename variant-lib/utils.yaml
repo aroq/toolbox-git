@@ -26,6 +26,14 @@ tasks:
             cmd: |
               git config --list | grep user\.name  || git config --global user.name "{{.name}}"
               git config --list | grep user\.email || git config --global user.email "{{.email}}"
+      branch:
+        script: |
+          if [ -z ${CI_COMMIT_REF_NAME+x} ]; then
+            git symbolic-ref -q --short HEAD || git describe --tags --exact-match
+          else
+            echo ${CI_COMMIT_REF_NAME}
+          fi
+
   init:
     steps:
     - task: core.exec
