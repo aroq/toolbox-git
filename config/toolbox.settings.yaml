@@ -8,7 +8,7 @@ tools:
   git/backmerge:
     from:
     - config.libraries
-    image: aroq/toolbox:0.1.11
+    image: aroq/toolbox-cicd-build:0.1.11
     cmd: git/backmerge
 
   git/sync:
