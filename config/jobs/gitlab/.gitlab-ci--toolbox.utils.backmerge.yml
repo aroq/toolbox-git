@@ -1,9 +1,11 @@
 .backmerge:
   stage: backmerge
   allow_failure: true
+  image: aroq/toolbox:0.1.11
   variables:
     GIT_SSH_COMMAND: "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
     DOCKER_RUN_TTY: -i
     DOCKER_RUN_MOUNT_VOLUME: -v ~/.ssh:/root/.ssh
   script:
     - toolbox/bin/git/backmerge --source="${CI_COMMIT_REF_NAME}" --project-dir="${CI_PROJECT_PATH_SLUG}"
+
