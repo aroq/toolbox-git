@@ -4,6 +4,8 @@
 bindParamsFromEnv: true
 
 parameters:
+- name: CI_COMMIT_REF_NAME
+  type: string
 - name: REPO
   type: string
 - name: SOURCE

@@ -5,8 +5,6 @@ bindParamsFromEnv: true
 autoenv: true
 
 parameters:
-- name: TOOLBOX_GPG_SECRET_PASSPHRASE
-  type: string
 - name: CI_COMMIT_REF_NAME
   type: string
 - name: repo
@@ -26,14 +24,6 @@ tasks:
     parameters:
     - name: git.config.branch
     steps:
-    - task: core.gpg.symmetric.decrypt
-      arguments:
-        input: toolbox/.secrets/id_rsa.allopneus.cicd.gpg
-        output: /root/.ssh/id_rsa
-    - task: core.exec
-      arguments :
-        cmd: |
-          chmod 400 /root/.ssh/id_rsa
     - task: core.exec
       arguments:
         title: "Git :: sync :: to external repo"
