@@ -1,38 +1,49 @@
+bindParamsFromEnv: true
+
 parameters:
 - name: repo
   type: string
   default: ""
+
 - name: branch
   type: string
   default: ""
+
 - name: GIT_SSH_COMMAND
   default: "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 
 tasks:
+  branch:
+    script: |
+      if [ -z ${CI_COMMIT_REF_NAME+x} ]; then
+        git symbolic-ref -q --short HEAD || git describe --tags --exact-match
+      else
+        echo ${CI_COMMIT_REF_NAME}
+      fi
+
+  repo:
+    script: git config --get remote.origin.url
+
   config:
     tasks:
       identity:
         parameters:
         - name: name
-          type: string
           default: "Toolbox"
         - name: email
-          type: string
           default: "toolbox@toolbox.com"
+        - name: args
+          default: ""
+        - name: dir
+          default: "."
         steps:
         - task: core.exec
           arguments:
             title: "Git :: config"
             cmd: |
-              git config --list | grep user\.name  || git config --global user.name "{{.name}}"
-              git config --list | grep user\.email || git config --global user.email "{{.email}}"
-      branch:
-        script: |
-          if [ -z ${CI_COMMIT_REF_NAME+x} ]; then
-            git symbolic-ref -q --short HEAD || git describe --tags --exact-match
-          else
-            echo ${CI_COMMIT_REF_NAME}
-          fi
+              cd {{.dir}}
+              git config --list | grep user\.name  || git config {{.args}} user.name "{{.name}}"
+              git config --list | grep user\.email || git config {{.args}} user.email "{{.email}}"
 
   init:
     steps:
@@ -163,4 +174,5 @@ tasks:
           git push -f target {{.target_branch }}
           )
           rm -fR {{ .working_dir }}
+
 
